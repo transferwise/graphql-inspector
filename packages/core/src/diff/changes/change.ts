@@ -92,7 +92,9 @@ export const ChangeType = {
   DirectiveUsageEnumChanged: 'DIRECTIVE_USAGE_ENUM_CHANGED',
   DirectiveUsageEnumValueAdded: 'DIRECTIVE_USAGE_ENUM_VALUE_ADDED',
   DirectiveUsageEnumValueRemoved: 'DIRECTIVE_USAGE_ENUM_VALUE_REMOVED',
-  DirectiveUsageEnumValueChanged: 'DIRECTIVE_USAGE_ENUM_VALUE_CHANGED',
+  DirectiveArgumentUsageEnumValueAdded: 'DIRECTIVE_USAGE_ARGUMENT_ENUM_VALUE_ADDED',
+  DirectiveArgumentUsageEnumValueRemoved: 'DIRECTIVE_USAGE_ARGUMENT_ENUM_VALUE_REMOVED',
+  DirectiveArgumentUsageEnumValueChanged: 'DIRECTIVE_USAGE_ARGUMENT_ENUM_VALUE_CHANGED',
   DirectiveUsageInputObjectAdded: 'DIRECTIVE_USAGE_INPUT_OBJECT_ADDED',
   DirectiveUsageInputObjectRemoved: 'DIRECTIVE_USAGE_INPUT_OBJECT_REMOVED',
   DirectiveUsageInputObjectChanged: 'DIRECTIVE_USAGE_INPUT_OBJECT_CHANGED',
@@ -682,15 +684,41 @@ export type DirectiveUsageEnumValueRemovedChange = {
   };
 };
 
-export type DirectiveUsageEnumValueChangedChange = {
-  type: typeof ChangeType.DirectiveUsageEnumValueChanged;
+export type DirectiveArgumentUsageEnumValueAddedChange = {
+  type: typeof ChangeType.DirectiveArgumentUsageEnumValueAdded;
+  meta: {
+    enumName: string;
+    enumValueName: string;
+    directiveName: string;
+    addedArgumentName: string;
+    addedArgumentValue: string;
+    addedArgumentType: string;
+  };
+};
+
+export type DirectiveArgumentUsageEnumValueRemovedChange = {
+  type: typeof ChangeType.DirectiveArgumentUsageEnumValueRemoved;
+  meta: {
+    enumName: string;
+    enumValueName: string;
+    directiveName: string;
+    removedArgumentName: string;
+    removedArgumentValue: string;
+    removedArgumentType: string;
+  };
+};
+
+export type DirectiveArgumentUsageEnumValueChangedChange = {
+  type: typeof ChangeType.DirectiveArgumentUsageEnumValueChanged;
   meta: {
     enumName: string;
     enumValueName: string;
     directiveName: string;
     argumentName: string;
     oldArgumentValue: string;
+    oldArgumentType: string;
     newArgumentValue: string;
+    newArgumentType: string;
   };
 };
 
@@ -1025,7 +1053,9 @@ type Changes = {
   [ChangeType.DirectiveUsageEnumChanged]: DirectiveUsageEnumChangedChange;
   [ChangeType.DirectiveUsageEnumValueAdded]: DirectiveUsageEnumValueAddedChange;
   [ChangeType.DirectiveUsageEnumValueRemoved]: DirectiveUsageEnumValueRemovedChange;
-  [ChangeType.DirectiveUsageEnumValueChanged]: DirectiveUsageEnumValueChangedChange;
+  [ChangeType.DirectiveArgumentUsageEnumValueAdded]: DirectiveArgumentUsageEnumValueAddedChange;
+  [ChangeType.DirectiveArgumentUsageEnumValueRemoved]: DirectiveArgumentUsageEnumValueRemovedChange;
+  [ChangeType.DirectiveArgumentUsageEnumValueChanged]: DirectiveArgumentUsageEnumValueChangedChange;
   [ChangeType.DirectiveUsageInputObjectAdded]: DirectiveUsageInputObjectAddedChange;
   [ChangeType.DirectiveUsageInputObjectRemoved]: DirectiveUsageInputObjectRemovedChange;
   [ChangeType.DirectiveUsageInputObjectChanged]: DirectiveUsageInputObjectChangedChange;
