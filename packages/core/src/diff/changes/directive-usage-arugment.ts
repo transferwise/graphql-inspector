@@ -1,4 +1,4 @@
-import { ConstDirectiveNode, Kind } from 'graphql';
+import { ConstDirectiveNode, ConstValueNode, Kind } from 'graphql';
 import { ConstArgumentNode } from 'graphql/language';
 import {
   Change,
@@ -26,12 +26,7 @@ export function directiveArgumentUsageEnumValueAddedFromMeta(
     },
     type: ChangeType.DirectiveArgumentUsageEnumValueAdded,
     message: buildDirectiveArgumentUsageEnumValueAddedMessage(args.meta),
-    path: [
-      args.meta.enumName,
-      args.meta.enumValueName,
-      args.meta.directiveName,
-      args.meta.addedArgumentName,
-    ].join('.'),
+    path: [args.meta.enumName, args.meta.enumValueName, args.meta.directiveName].join('.'),
     meta: args.meta,
   } as const;
 }
@@ -97,8 +92,8 @@ export function directiveUsageArgumentAdded<K extends keyof KindToPayload>(
         enumValueName: payload.value.name,
         directiveName: directive.name.value,
         addedArgumentName: argument.name.value,
-        addedArgumentType: 'value' in argument.value ? String(argument.value.value) : '',
-        addedArgumentValue: argument.kind,
+        addedArgumentType: stringOfValueNode(argument.value),
+        addedArgumentValue: argument.value.kind,
       },
     });
   }
@@ -119,8 +114,8 @@ export function directiveUsageArgumentRemoved<K extends keyof KindToPayload>(
         enumValueName: payload.value.name,
         directiveName: directive.name.value,
         removedArgumentName: argument.name.value,
-        removedArgumentValue: 'value' in argument.value ? String(argument.value.value) : '',
-        removedArgumentType: argument.kind,
+        removedArgumentValue: stringOfValueNode(argument.value),
+        removedArgumentType: argument.value.kind,
       },
     });
   }
@@ -142,12 +137,41 @@ export function directiveUsageArgumentChanged<K extends keyof KindToPayload>(
         enumValueName: payload.value.name,
         directiveName: directive.name.value,
         argumentName: oldVersion.name.value,
-        oldArgumentValue: 'value' in oldVersion.value ? String(oldVersion.value.value) : '',
-        oldArgumentType: oldVersion.kind,
-        newArgumentValue: 'value' in newVersion.value ? String(newVersion.value.value) : '',
-        newArgumentType: newVersion.kind,
+        oldArgumentValue: stringOfValueNode(oldVersion.value),
+        oldArgumentType: oldVersion.value.kind,
+        newArgumentValue: stringOfValueNode(newVersion.value),
+        newArgumentType: newVersion.value.kind,
       },
     });
   }
   return {} as any;
+}
+
+export function hasArgumentChanged(newArgument: ConstArgumentNode, oldArgument: ConstArgumentNode) {
+  if (newArgument.kind !== oldArgument.kind) {
+    return true;
+  }
+  const newValue = stringOfValueNode(newArgument.value);
+  const oldValue = stringOfValueNode(oldArgument.value);
+  return newValue !== oldValue;
+}
+
+function stringOfValueNode(valueNode: ConstValueNode): string {
+  if (valueNode.kind === Kind.NULL) return '';
+  if ([Kind.INT, Kind.FLOAT, Kind.STRING, Kind.BOOLEAN, Kind.ENUM].includes(valueNode.kind)) {
+    return 'value' in valueNode ? String(valueNode.value) : '';
+  }
+  if (valueNode.kind === Kind.LIST) {
+    const values = 'values' in valueNode ? valueNode.values : [];
+    return values.map(stringOfValueNode).join(', ');
+  }
+  if (valueNode.kind === Kind.OBJECT) {
+    const fields = 'fields' in valueNode ? valueNode.fields : [];
+    return fields
+      .map((field): string => {
+        return `${field.name.value} : ${stringOfValueNode(field.value)}`;
+      })
+      .join(', ');
+  }
+  return '';
 }

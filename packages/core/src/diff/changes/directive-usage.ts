@@ -13,7 +13,7 @@ import {
   GraphQLUnionType,
   Kind,
 } from 'graphql';
-import { compareLists, isNotEqual } from '../../utils/compare.js';
+import { compareLists } from '../../utils/compare.js';
 import { AddChange } from '../schema.js';
 import {
   Change,
@@ -45,7 +45,7 @@ import {
 import {
   directiveUsageArgumentAdded,
   directiveUsageArgumentChanged,
-  directiveUsageArgumentRemoved,
+  directiveUsageArgumentRemoved, hasArgumentChanged,
 } from './directive-usage-arugment.js';
 
 function addedSpecialDirective(
@@ -834,7 +834,7 @@ export function directiveUsageChanged<K extends keyof KindToPayload>(
       addChange(directiveUsageArgumentRemoved(kind, payload, newDirective, argument));
     },
     onMutual({ newVersion, oldVersion }) {
-      if (isNotEqual(newVersion, oldVersion)) {
+      if (hasArgumentChanged(newVersion, oldVersion)) {
         addChange(directiveUsageArgumentChanged(kind, payload, newDirective, oldVersion, newVersion));
       }
     },
