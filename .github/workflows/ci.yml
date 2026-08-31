@@ -19,22 +19,22 @@ jobs:
       CI: true
 
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+      - uses: actions/checkout@v5
 
       - name: Use Node.js ${{ matrix.node_version }}
-        uses: actions/setup-node@master
+        uses: actions/setup-node@v6
         with:
           node-version: ${{ matrix.node_version }}
 
       - name: Install pnpm
-        uses: pnpm/action-setup@fe02b34f77f8bc703788d5817da081398fad5dd2 # v4.0.0
+        uses: pnpm/action-setup@v6
 
       - name: Get pnpm cache - Set output
         id: pnpm-cache
         run: echo "{dir}={pnpm cache dir}" >> $GITHUB_OUTPUT
 
       - name: Cache pnpm
-        uses: actions/cache@2f8e54208210a422b2efd51efaa6bd6d7ca8920f # v3
+        uses: actions/cache@v5
         with:
           path: ${ env.dir }
           key: ${{ runner.os }}-pnpm-${{ hashFiles('pnpm-lock.yaml') }}
